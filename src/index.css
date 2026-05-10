@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased text-gray-800 bg-[#fff5f5] overflow-x-hidden;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3 {
+    @apply font-playfair;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/30 backdrop-blur-md border border-white/20 shadow-xl;
+  }
+  
+  .glass-dark {
+    @apply bg-black/20 backdrop-blur-md border border-white/10 shadow-xl;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 10px rgba(244, 63, 94, 0.5);
+  }
+
+  .btn-premium {
+    @apply px-8 py-4 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-full 
+    font-semibold shadow-lg hover:shadow-primary-500/50 transition-all duration-300 
+    hover:scale-105 active:scale-95 flex items-center justify-center gap-2;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-primary-50;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-primary-300 rounded-full hover:bg-primary-400 transition-colors;
+}
+
+/* Cursor Glow Effect */
+.cursor-glow {
+  pointer-events: none;
+  position: fixed;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(244, 63, 94, 0.15) 0%, rgba(244, 63, 94, 0) 70%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+}
+
+/* Parallax Background */
+.parallax-bg {
+  perspective: 1000px;
+}
+
+.floating-heart {
+  position: absolute;
+  pointer-events: none;
+  animation: float-up var(--duration) ease-in-out infinite;
+  opacity: 0;
+}
+
+@keyframes float-up {
+  0% {
+    transform: translateY(100vh) scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.6;
+  }
+  80% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-20vh) scale(1.5) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Responsive clamp values */
+.text-responsive-h1 {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+}
+
+.text-responsive-h2 {
+  font-size: clamp(1.5rem, 5vw, 3rem);
+}
+
+.text-responsive-p {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+}
