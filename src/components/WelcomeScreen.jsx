@@ -1,12 +1,15 @@
 import React, { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Upload, Heart, Trash2, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Upload, Heart, Trash2, Sparkles, Crop } from 'lucide-react';
+import ImageCropper from './ImageCropper';
 
 const WelcomeScreen = ({ onSubmit }) => {
   const [motherName, setMotherName] = useState('');
   const [customMessage, setCustomMessage] = useState('');
   const [images, setImages] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [croppingIndex, setCroppingIndex] = useState(null);
+  const [cropQueue, setCropQueue] = useState([]);
   const fileInputRef = useRef(null);
 
   const handleImageUpload = (e) => {
@@ -20,10 +23,19 @@ const WelcomeScreen = ({ onSubmit }) => {
     validFiles.forEach(file => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImages(prev => [...prev, reader.result]);
+        setCropQueue(prev => [...prev, reader.result]);
       };
       reader.readAsDataURL(file);
     });
+  };
+
+  const onCropComplete = (croppedImage) => {
+    setImages(prev => [...prev, croppedImage]);
+    setCropQueue(prev => prev.slice(1));
+  };
+
+  const onCropCancel = () => {
+    setCropQueue(prev => prev.slice(1));
   };
 
   const removeImage = (index) => {
@@ -57,6 +69,16 @@ const WelcomeScreen = ({ onSubmit }) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 md:p-8 relative z-10">
+      <AnimatePresence>
+        {cropQueue.length > 0 && (
+          <ImageCropper 
+            image={cropQueue[0]} 
+            onCropComplete={onCropComplete}
+            onCancel={onCropCancel}
+          />
+        )}
+      </AnimatePresence>
+
       <motion.div 
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -73,9 +95,9 @@ const WelcomeScreen = ({ onSubmit }) => {
           >
             <Heart className="w-8 h-8 text-primary-500 fill-primary-500 animate-heart-pulse" />
           </motion.div>
-          <h1 className="text-responsive-h2 mb-4 text-primary-800">Create a Digital Tribute</h1>
-          <p className="text-gray-600 max-w-md mx-auto">
-            Upload photos and personalize a beautiful Mother's Day experience.
+          <h1 className="text-responsive-h2 mb-4 text-primary-800 font-playfair italic">Digital Tribute Builder</h1>
+          <p className="text-gray-600 max-w-md mx-auto font-light">
+            Craft a cinematic experience for the most important woman in your life.
           </p>
         </div>
 
@@ -113,8 +135,9 @@ const WelcomeScreen = ({ onSubmit }) => {
 
             {/* Right Side: Upload */}
             <div>
-              <label className="block text-sm font-semibold text-primary-700 mb-2 uppercase tracking-wider">
+              <label className="block text-sm font-semibold text-primary-700 mb-2 uppercase tracking-wider flex items-center gap-2">
                 Upload Photos
+                <span className="text-[10px] text-primary-400 font-normal normal-case italic">(You'll be able to crop after choosing)</span>
               </label>
               <div
                 onDragOver={onDragOver}
@@ -134,9 +157,11 @@ const WelcomeScreen = ({ onSubmit }) => {
                   accept="image/*"
                   className="hidden"
                 />
-                <Upload className="w-10 h-10 text-primary-400 mb-4" />
+                <div className="bg-primary-50 p-4 rounded-full mb-4">
+                  <Upload className="w-8 h-8 text-primary-500" />
+                </div>
                 <p className="text-sm text-gray-500 font-medium">Click or Drag & Drop</p>
-                <p className="text-xs text-gray-400 mt-1">Support multiple JPG, PNG</p>
+                <p className="text-xs text-gray-400 mt-1">High-quality JPG, PNG supported</p>
               </div>
 
               {/* Previews */}
@@ -152,18 +177,20 @@ const WelcomeScreen = ({ onSubmit }) => {
                       <img
                         src={img}
                         alt="Preview"
-                        className="w-full h-full object-cover rounded-lg shadow-sm"
+                        className="w-full h-full object-cover rounded-lg shadow-sm border-2 border-white/80"
                       />
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeImage(index);
-                        }}
-                        className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
+                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeImage(index);
+                          }}
+                          className="p-1.5 bg-red-500 text-white rounded-full shadow-md hover:bg-red-600 transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </motion.div>
                   ))}
                 </div>
@@ -175,7 +202,7 @@ const WelcomeScreen = ({ onSubmit }) => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             type="submit"
-            className="btn-premium w-full py-5 text-lg group"
+            className="btn-premium w-full py-5 text-lg group flex items-center justify-center gap-3"
           >
             <span>Create Mother's Day Tribute</span>
             <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
